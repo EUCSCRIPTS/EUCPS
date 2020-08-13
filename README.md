@@ -1,3 +1,3 @@
 # EUCPS
 Powershell Scripts for EUC/WPS Teams
-This script will help to convert Active Directory User ID's to User Names/Display Name
+This repository will contain powershell scripts written for IAM, SCCM and Packaging Teams
