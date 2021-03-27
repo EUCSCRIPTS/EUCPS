@@ -1,0 +1,11 @@
+
+# To Fetch the AD Group Name, Update Description and update Notes field 
+$groupnames = @()
+$Groupnames = Import-Csv "C:\temp\NoDescription\Test_ADGroup_Desc_Notes_Update.csv"
+
+#Replacing the old info with new ones.
+foreach ($group in $groupnames) 
+{
+
+    Set-ADGroup -identity $group.name -description $group.description -replace @{info=$group.info} 
+}
