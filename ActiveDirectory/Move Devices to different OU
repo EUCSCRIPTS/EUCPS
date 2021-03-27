@@ -1,0 +1,6 @@
+$phase = get-content "C:\Temp\devices.txt"
+
+foreach ($d in $phase)
+{
+get-adcomputer $d | Move-ADObject -TargetPath ‘OU=abc,DC=def,DC=ijk,DC=net’
+}
