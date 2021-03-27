@@ -1,0 +1,1 @@
+Get-ADComputer  -Properties CN,Description,DistinguishedName,LastLogonDate -Filter "OperatingSystem -like 'Windows 7*' -and OperatingSystemVersion -Eq '6.1 (7601)'" 
