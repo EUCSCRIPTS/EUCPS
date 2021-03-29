@@ -1,0 +1,52 @@
+#############################################################################################################################################
+#### 
+#### Script:      DeleteLenovoPlatformService .ps1                                      
+#### Author:      Venkatesh Sriram                                           
+#### Version:     1.0                                                         
+#### Description: This script will disable the Lenovo Platform service (LPlatSvc) and delete the scheduled task 'Lenovo Platform Task'.
+####              The deletion of serivce will increase the performance of the device
+#### Approver:    
+####
+#### Changes:     
+####
+##############################################################################################################################################
+#Check whether there exists a flag file named 'Lenovo-Service-TaskScheduler-Removal.flg' at C:\Temp
+If((Get-Item C:\Temp\Lenovo-Service-TaskScheduler-Removal.flg).Exists)
+{
+    #IF the Flag file is available, write in the event stating 'Flag file not found'
+    Write-EventLog -log "Logs" -source "Script" -EntryType Information -eventID 99 -Message "Lenovo Platform Task flag file found, exiting."
+    Exit
+}
+Else
+{
+    #If the Flag file is not available, then else part of the code start its execution
+    
+    #Fetch the service with name 'LPlatSvc' and stop the service.
+    Get-Service -name 'LPlatSvc' | stop-service
+
+    #Disable the service
+    Set-Service -name 'LPlatSvc' -startupType Disabled
+
+    #Write the logs on the eventviewer
+    Write-EventLog -log "Logs" -source "Script" -EntryType Information -eventID 99 -Message "Lenovo Platform Service Stopped and Disabled."
+    
+    #Block of script used to delete Lenovo Platform Task
+    #Block starts here####
+
+    # Assign the variable taskname with 'Lenovo Platform Task'
+    $taskName = "Lenovo Platform Task"
+
+    #Fetch the task which has value available on taskname variable and select the first object from the list
+    $task = Get-ScheduledTask | Where-Object { $_.TaskName -eq $taskName } | Select-Object -First 1
+
+    #$null is an automatic variable that contains a null or empty value. Compare the NULL value with value available on variable $task
+    #If both values are not equal, delete the task from the Task scheduler of that device.
+    if ($null -ne $task) 
+    {
+        $task | Unregister-ScheduledTask -Confirm:$false
+    } 
+
+    #Create a flag file named 'Lenovo-Service-TaskScheduler-Removal.flg' and place at 'C:\Cliffordchance' location with 'Complete' as data.
+    add-content C:\Temp\Lenovo-Service-TaskScheduler-Removal.flg "Complete"
+}
+
