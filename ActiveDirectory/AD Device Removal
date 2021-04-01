@@ -1,0 +1,9 @@
+
+$td = Get-content "C:\Temp\devices.txt"
+
+foreach($d in $td){
+
+Get-ADComputer $d  | Remove-ADObject -Recursive -confirm:$false
+
+}
+ 
