@@ -1,11 +1,11 @@
-Invoke-Command -ComputerName DELL207073 -ScriptBlock {Get-ItemProperty -Path HKLM:'SOFTWARE\Clifford Chance\'}
+Invoke-Command -ComputerName 'devicename' -ScriptBlock {Get-ItemProperty -Path HKLM:'SOFTWARE\reg path\'}
 
-Invoke-Command -ComputerName DELL207073 -ScriptBlock {Get-ItemProperty -Path HKLM:'SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate'}
+Invoke-Command -ComputerName 'devicename' -ScriptBlock {Get-ItemProperty -Path HKLM:'SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate'}
 
 
-get-WmiObject win32_logicaldisk -Computername MOSW202670
+get-WmiObject win32_logicaldisk -Computername 'devicename'
 
-Invoke-Command -ComputerName MOSW202670 {Get-PSDrive C} | Select-Object PSComputerName,Used,Free
+Invoke-Command -ComputerName 'devicename' {Get-PSDrive C} | Select-Object PSComputerName,Used,Free
 
 get-service | Stop-Process
 
