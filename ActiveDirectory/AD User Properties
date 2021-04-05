@@ -1,0 +1,65 @@
+Import-Module ActiveDirectory
+
+$inputFile = import-csv "C:\temp\input.txt" -Delimiter "`t"
+
+$finalObject = @()
+
+foreach($entry in $inputFile)
+{
+    try
+    {
+        $currentUser = $null
+        $currentUser = Get-ADUser $entry.samaccountname -Properties DisplayName  -ErrorAction Stop
+        $tmpObj = $null
+        $tmpObj = "" | Select samaccountname,'Display Name',Status,Comment
+        
+        if($currentUser)
+        {            
+            try
+            {
+                    Set-ADUser -Identity $currentUser.DistinguishedName -DisplayName $entry.'Display Name' -ErrorAction Stop
+                    
+                    $tmpObj = $null
+                    $tmpObj = "" | Select samaccountname,'Display Name',Status,Comment
+                    $tmpObj.samaccountname = $entry.samaccountname
+                                        
+                    $tmpObj.'Display Name' = $currentUser.displayname
+                    $tmpObj.Status = 'Completed'
+                    $tmpObj.Comment = 'Success'
+                    $finalObject += $tmpObj
+            }
+            Catch
+            {
+                    $tmpObj = $null
+                    $tmpObj = "" | Select samaccountname,'Display Name',Status,Comment
+                    $tmpObj.samaccountname = $entry.samaccountname
+                    $tmpObj.Description = "Error"
+
+                    $tmpObj.'Display Name' = $currentuser.displayname
+                    $tmpObj.Status = 'Error modifying the object'
+                    $tmpObj.Comment = 'Verify you have rights to modify the object.'
+                    $finalObject += $tmpObj
+            }
+            #$finalObject += $tmpObj
+            
+        }
+    }
+    catch
+    {
+        "got it"
+        $tmpObj = $null
+        $tmpObj = "" | Select samaccountname,'Display Name',Status,Comment
+        $tmpObj.samaccountname = $entry.samaccountname
+        
+        $tmpObj.'Display Name' = "Error"
+        $tmpObj.Status = 'Object not found'
+        $tmpObj.Comment = 'Verify the object exists in AD and update the file accordingly and run the script again.'
+        $finalObject += $tmpObj
+    }
+}
+
+$cUser = Get-ChildItem Env:\UserName | select -ExpandProperty Value
+$FileNameDate = Get-Date -Format('ddMMMyyyy-HHmm')
+$reportFile = "$($cUser)_Report_$FileNameDate.csv"
+
+$finalObject | Export-Csv $reportfile -Delimiter "`t" -NoTypeInformation 
